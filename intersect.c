@@ -1,6 +1,10 @@
+#define _BSD_SOURCE
 #include "intersect.h"
 
 #include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+
 
 int main(int argc, char *argv[])
 {
@@ -9,12 +13,27 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	FILE *fp = fopen(argv[1], "r");
+	int file_count = 1;
 
-	if(!fp) {
-		perror("The file could not be opened");
-		return 2;
+	hash *hashy = hash_create();
+
+	while(file_count < argc) {
+		FILE *fp = fopen(argv[file_count], "r");
+
+		if(!fp) {
+			perror("The file could not be opened");
+			return 2;
+		}
+
+		while(!feof(fp)) {
+			char *buffer = malloc(256 * sizeof(*buffer)); //change to malloc later and realloc
+			fgets(buffer, 1, fp);
+			printf("Word: %s\n", buffer);
+		}		
+
+		fclose(fp);
+		++file_count;
 	}
 
-	fclose(fp);
+	hash_destroy(hashy);
 }
