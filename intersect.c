@@ -24,22 +24,23 @@ int main(int argc, char *argv[])
 
 	hash *hashy = hash_create();
 
+	char *buffer = malloc(256 * sizeof(buffer)); //change to malloc later and realloc
+	char *buffer1 = malloc(256 * sizeof(buffer1));
+
 	while(file_count < argc) {
 		FILE *fp = fopen(argv[file_count], "r");
 
 		if(!fp) {
-			perror("The file could not be opened");
+			perror("The file could not be opened\n");
 			return 2;
 		}
 
 		if(file_count == 1) {
 			while(!feof(fp)) {
-				char *buffer = malloc(256 * sizeof(buffer)); //change to malloc later and realloc
 				if(fgets(buffer, 256, fp) != NULL) {
 					char *token = strtok(buffer, " ");
 					do {
-						if(hash_fetch(hashy, token) < .001) {
-							//printf("Inserting: %s", token);
+						if(hash_fetch(hashy, token) < .001) 
 							hash_insert(hashy, token, file_count);
 						}
 						//token = strtok(NULL, "\0");
@@ -48,12 +49,28 @@ int main(int argc, char *argv[])
 			}
 		}	
 		else {
-			
+			while(!feof(fp)) {
+				if(fgets(buffer, 256, fp) != NULL)
+				{
+					char *token = strtok(buffer, " ");
+					while(token != NULL) {
+						if(hash_fetch(hashy, token) > .001) {
+							printf("here : %d\n", file_count);
+							hash_insert(hashy, token, file_count);
+						}
+						token = strtok(NULL, " ");
+					}
+				}
+			}	
 		}	
 
 		fclose(fp);
 		++file_count;
 	}
+
+	free(buffer);
+
+	free(buffer1);
 
 	hash_destroy(hashy);
 }
