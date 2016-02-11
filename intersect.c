@@ -37,15 +37,13 @@ int main(int argc, char *argv[])
 				char *buffer = malloc(256 * sizeof(buffer)); //change to malloc later and realloc
 				if(fgets(buffer, 256, fp) != NULL) {
 					char *token = strtok(buffer, "\0");
-					while(token != NULL) {
+					do {
 						if(hash_fetch(hashy, token) < .001) {
-							//printf("Could not insert your thing\n");
 							printf("Inserting: %s", token);
 							hash_insert(hashy, token, file_count);
 						}
-
-						token = strtok(NULL, "\0");
-					}
+						//token = strtok(NULL, "\0");
+					} while((token = strtok(NULL, "\0")) != NULL);
 				}
 			}
 		}	
