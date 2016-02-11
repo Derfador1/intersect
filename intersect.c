@@ -36,10 +36,11 @@ int main(int argc, char *argv[])
 			while(!feof(fp)) {
 				char *buffer = malloc(256 * sizeof(buffer)); //change to malloc later and realloc
 				if(fgets(buffer, 256, fp) != NULL) {
-					char *token;
-					while((token = strtok(buffer, '\0')) != NULL) {
+					char *token = strtok(buffer, "\0");
+					while(token != NULL) {
 						printf("Inserting: %s", token);
 						hash_insert(hashy, token, file_count);
+						token = strtok(NULL, "\0");
 					}
 				}
 			}
