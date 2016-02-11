@@ -38,8 +38,12 @@ int main(int argc, char *argv[])
 				if(fgets(buffer, 256, fp) != NULL) {
 					char *token = strtok(buffer, "\0");
 					while(token != NULL) {
-						printf("Inserting: %s", token);
-						hash_insert(hashy, token, file_count);
+						if(hash_fetch(hashy, token) < .001) {
+							//printf("Could not insert your thing\n");
+							printf("Inserting: %s", token);
+							hash_insert(hashy, token, file_count);
+						}
+
 						token = strtok(NULL, "\0");
 					}
 				}
