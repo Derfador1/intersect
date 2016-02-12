@@ -7,7 +7,7 @@
 
 //taken from class code for hash program
 static const size_t DEFAULT_SIZE = 10;
-static struct h_llist *h_llist_create(const char *key, double value);
+static struct h_llist *h_llist_create(const char *key, size_t value);
 static void h_llist_destroy(struct h_llist *list);
 static size_t hash_func(const char *key, size_t capacity);
 static void hash_recalculate(hash *h);
@@ -103,7 +103,7 @@ hash *hash_create(void)
 }
 
 
-static struct h_llist *h_llist_create(const char *key, double value)
+static struct h_llist *h_llist_create(const char *key, size_t value)
 {
 	struct h_llist *node = malloc(sizeof(*node));
 
@@ -153,7 +153,7 @@ static size_t hash_func(const char *key, size_t capacity)
 	return wang_hash(buf) % capacity;
 }	
 
-void hash_insert(hash *h, const char *key, double value)
+void hash_insert(hash *h, const char *key, size_t value)
 {
 	if(!h || !key) {
 		return;
