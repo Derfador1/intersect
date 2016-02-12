@@ -13,6 +13,11 @@ static size_t hash_func(const char *key, size_t capacity);
 static void hash_recalculate(hash *h);
 uint64_t wang_hash(uint64_t key);
 
+void print_pair(const char *key, double value)
+{
+	printf("%lf %s", value, key);
+}
+
 int main(int argc, char *argv[])
 {
 	if(argc == 1) {
@@ -40,7 +45,7 @@ int main(int argc, char *argv[])
 				if(fgets(buffer, 256, fp) != NULL) {
 					char *token = strtok(buffer, " ");
 					do {
-						if(hash_fetch(hashy, token) < .001) 
+						if(hash_fetch(hashy, token) < .001) {
 							hash_insert(hashy, token, file_count);
 						}
 						//token = strtok(NULL, "\0");
@@ -55,18 +60,22 @@ int main(int argc, char *argv[])
 					char *token = strtok(buffer, " ");
 					while(token != NULL) {
 						if(hash_fetch(hashy, token) > .001) {
-							printf("here : %d\n", file_count);
+							//printf("here : %d\n\n", file_count);
 							hash_insert(hashy, token, file_count);
 						}
 						token = strtok(NULL, " ");
 					}
 				}
 			}	
-		}	
+		}
 
 		fclose(fp);
 		++file_count;
 	}
+
+	hash_traverse(hashy, print_pair);
+
+	printf("\n");	
 
 	free(buffer);
 
