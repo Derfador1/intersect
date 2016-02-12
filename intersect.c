@@ -13,9 +13,9 @@ static size_t hash_func(const char *key, size_t capacity);
 static void hash_recalculate(hash *h);
 uint64_t wang_hash(uint64_t key);
 
-void print_pair(const char *key, double value)
+void print_pair(const char *key, size_t value)
 {
-	printf("%lf %s", value, key);
+	printf("%zd %s\n", value, key);
 }
 
 int main(int argc, char *argv[])
@@ -25,14 +25,14 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	int file_count = 1;
+	size_t file_count = 1;
 
 	hash *hashy = hash_create();
 
 	char *buffer = malloc(256 * sizeof(buffer)); //change to malloc later and realloc
 	char *buffer1 = malloc(256 * sizeof(buffer1));
 
-	while(file_count < argc) {
+	while(file_count < (size_t)argc) {
 		FILE *fp = fopen(argv[file_count], "r");
 
 		if(!fp) {
@@ -40,42 +40,24 @@ int main(int argc, char *argv[])
 			return 2;
 		}
 
-		if(file_count == 1) {
-			while(!feof(fp)) {
-				if(fgets(buffer, 256, fp) != NULL) {
-					char *token = strtok(buffer, " ");
-					do {
-						if(hash_fetch(hashy, token) < .001) {
-							hash_insert(hashy, token, file_count);
-						}
-						//token = strtok(NULL, "\0");
-					} while((token = strtok(NULL, " ")) != NULL);
+		while(!feof(fp)) {
+			if(fgets(buffer, 256, fp) != NULL)
+			{
+				char *token = strtok(buffer, " \t\n\f\v\r");
+				while(token != NULL) {
+					if(hash_fetch(hashy, token) == file_count - 1) {
+						hash_insert(hashy, token, file_count);
+					}
+					token = strtok(NULL, " \t\n\f\v\r");
 				}
 			}
 		}	
-		else {
-			while(!feof(fp)) {
-				if(fgets(buffer, 256, fp) != NULL)
-				{
-					char *token = strtok(buffer, " ");
-					while(token != NULL) {
-						if(hash_fetch(hashy, token) > .001) {
-							//printf("here : %d\n\n", file_count);
-							hash_insert(hashy, token, file_count);
-						}
-						token = strtok(NULL, " ");
-					}
-				}
-			}	
-		}
 
 		fclose(fp);
 		++file_count;
 	}
 
 	hash_traverse(hashy, print_pair);
-
-	printf("\n");	
 
 	free(buffer);
 
@@ -207,7 +189,7 @@ void hash_insert(hash *h, const char *key, double value)
 }
 
 
-double hash_fetch(hash *h, const char *key)
+size_t hash_fetch(hash *h, const char *key)
 {
 	if(!h || !key) {
 		return 0;
@@ -264,7 +246,7 @@ static void hash_recalculate(hash *h)
 	free(cpy);
 }
 
-void hash_traverse(hash *h, void (*func)(const char *, double))
+void hash_traverse(hash *h, void (*func)(const char *, size_t))
 {
 	for(size_t n = 0; n < h->capacity; ++n) {
 		struct h_llist *tmp = h->data[n];
