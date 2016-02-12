@@ -6,7 +6,7 @@
 
 struct h_llist {
 	char *key;
-	double value;
+	size_t value;
 	struct h_llist *next;
 };
 
@@ -19,9 +19,8 @@ typedef struct {
 hash *__hash_create(size_t capacity);
 hash *hash_create(void);
 void hash_destroy(hash *h);
-//void hash_delete
-void hash_insert(hash *h, const char *key, double value);
-double hash_fetch(hash *h, const char *key);
-void hash_traverse(hash *h, void (*func)(const char *, double));
+void hash_insert(hash *h, const char *key, size_t value);
+size_t hash_fetch(hash *h, const char *key);
+void hash_traverse(hash *h, void (*func)(const char *, size_t), size_t file_count);
 
 #endif
