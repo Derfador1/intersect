@@ -41,7 +41,8 @@ int main(int argc, char *argv[])
 
 		if(!fp) {
 			perror("The file could not be opened\n");
-			return 2;
+			free(buffer);
+			exit(1);
 		}
 
 		while(!feof(fp)) {
