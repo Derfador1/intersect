@@ -75,6 +75,62 @@ int main(int argc, char *argv[])
 	h_llist_destroy(head);
 }
 
+/*
+static void merge(const void *arr[], size_t midpoint, size_t len,
+		int (*cmp)(const void *, const void *), const void **tmp)
+{
+	size_t pos = 0;
+	size_t p1 = 0;
+	size_t p2 = midpoint;
+	while(p1 < midpoint && p2 < len) {
+		if(cmp(arr[p2], arr[p1]) < 0) {
+			tmp[pos++] = arr[p2++];
+		} else {
+			tmp[pos++] = arr[p1++];
+		}
+	}
+
+	while(p1 < midpoint) {
+		tmp[pos++] = arr[p1++];
+	}
+	while(p2 < len) {
+		tmp[pos++] = arr[p2++];
+	}
+
+	while(--pos) {
+		arr[pos] = tmp[pos];
+	}
+}
+
+static void mergesort_range(const void *arr[], size_t len,
+		int (*cmp)(const void *, const void *), const void **tmp)
+{
+	if(len < 2) {
+		return;
+	}
+
+	size_t middle = len / 2;
+	mergesort_range(arr, middle, cmp, tmp);
+	mergesort_range(arr + middle, len - middle, cmp, tmp);
+	merge(arr, middle, len, cmp, tmp);
+}
+
+bool mergesort(const void *arr[], size_t len, int (*cmp)(const void *, const void *))
+{
+	if(!arr || !cmp || len < 2) {
+		return false;
+	}
+	const void **tmp = malloc(len * sizeof(*tmp));
+	if(!tmp) {
+		return false;
+	}
+	mergesort_range(arr, len, cmp, tmp);
+
+	free(tmp);
+	return true;
+}
+*/
+
 void ll_print(struct h_llist *h, size_t file_count) 
 {
 	while(h) {
