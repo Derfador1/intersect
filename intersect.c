@@ -13,11 +13,7 @@ static size_t hash_func(const char *key, size_t capacity);
 static void hash_recalculate(hash *h);
 uint64_t wang_hash(uint64_t key);
 void ll_print(struct h_llist *h, size_t file_count);
-
-void print_pair(const char *key, size_t value)
-{
-	printf("%zd %s\n", value, key);
-}
+struct h_llist *mergesort(struct h_llist *head, size_t sz);
 
 const size_t BUF_SZ = 256;
 
@@ -65,9 +61,13 @@ int main(int argc, char *argv[])
 		++file_count;
 	}
 
+	size_t size = hashy->item_count;
+
+	printf("Size: %zd\n", size);
+
 	struct h_llist *head = hash_to_ll(hashy);
 
-	//merge_sort();
+	mergesort(head, size);
 
 	ll_print(head, file_count - 1);
 
@@ -78,22 +78,60 @@ int main(int argc, char *argv[])
 	h_llist_destroy(head);
 }
 
-/*
-bool mergesort(const void *arr[], size_t len, int (*cmp)(const void *, const void *))
+struct h_llist *sorter(struct h_llist *head, struct h_llist *half)
 {
-	if(!arr || !cmp || len < 2) {
-		return false;
-	}
-	const void **tmp = malloc(len * sizeof(*tmp));
-	if(!tmp) {
-		return false;
-	}
-	mergesort_range(arr, len, cmp, tmp);
+	struct h_llist *tmp = NULL;
 
-	free(tmp);
-	return true;
+	if(head == NULL) {
+		return half;
+	}
+	else if(half == NULL) {
+		return head;
+	}
+
+	if(head->key <= half->key) {
+		tmp = head;
+		tmp->next = sorter(head->next, half);
+	}
+	else
+	{
+		tmp = half;
+		tmp->next = sorter(head, half->next);
+	}
+
+	return(tmp);
 }
-*/
+
+struct h_llist *mergesort(struct h_llist *head, size_t sz)
+{
+	struct h_llist *result = head;
+
+	if(!head) {
+		return 0;
+	}
+
+	if(sz < 2) {
+		return head;
+	}
+
+	struct h_llist *half = head;
+	for(size_t n = 0; n < sz/2; ++n) {
+		half = half->next;
+	}
+	
+	struct h_llist *tmp = half->next;
+	half->next = NULL;
+	half = tmp;
+	
+	mergesort(head, sz/2);
+	mergesort(half, sz - sz/2);
+
+	result = sorter(head, half);
+
+	return result;
+
+	//return llist_merge(head, half);
+}
 
 void ll_print(struct h_llist *h, size_t file_count) 
 {
