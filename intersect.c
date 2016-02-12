@@ -65,14 +65,17 @@ int main(int argc, char *argv[])
 		++file_count;
 	}
 
-	//hash_to_ll();
-	struct h_llist *head = hash_to_ll(hashy);
+	struct h_llist *head = hash_to_ll(hashy, file_count);
 
 	ll_print(head);
 
-	free(buffer);
+	//free(buffer);
+
+	printf("here\n");
 
 	hash_destroy(hashy);
+
+	h_llist_destroy(head);
 }
 
 void ll_print(struct h_llist *h) 
@@ -264,25 +267,27 @@ static void hash_recalculate(hash *h)
 	free(cpy);
 }
 
-struct h_llist *hash_to_ll(hash *h)
+struct h_llist *hash_to_ll(hash *h, size_t file_count)
 {
 	struct h_llist *head = NULL;
 
 	for (size_t n = 0; n < h->capacity; ++n) {
-		if(!h->data[n]) {
-			continue;
-		}
+		if(h->data->value == file_count) {
+			if(!h->data[n]) {
+				continue;
+			}
 
-		struct h_llist *tail = h->data[n];
-		while(tail->next) {
-			tail = tail->next;
-		}
+			struct h_llist *tail = h->data[n];
+			while(tail->next) {
+				tail = tail->next;
+			}
 	
-		tail->next = head;
-		head = h->data[n];
+			tail->next = head;
+			head = h->data[n];
+		}
 	}
 
-	memset(h->data, h->capacity, 0);
+	memset(h->data, h->capacity*sizeof(h), '\0');
 
 	return head;
 	/*
