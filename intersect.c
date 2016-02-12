@@ -19,6 +19,8 @@ void print_pair(const char *key, size_t value)
 	printf("%zd %s\n", value, key);
 }
 
+const size_t BUF_SZ = 256;
+
 int main(int argc, char *argv[])
 {
 	if(argc == 1) {
@@ -30,7 +32,7 @@ int main(int argc, char *argv[])
 
 	hash *hashy = hash_create();
 
-	char *buffer = malloc(20 * sizeof(buffer)); //change to malloc later and realloc
+	char *buffer = malloc(BUF_SZ * sizeof(buffer)); //change to malloc later and realloc
 
 	//int case1 = 0;
  
@@ -43,13 +45,13 @@ int main(int argc, char *argv[])
 			perror("The file could not be opened\n");
 			free(buffer);
 			//fclose(fp);
-			break;
+			return 2;
 		}
 
 		while(!feof(fp)) {
-			if(fgets(buffer, 256, fp) != NULL)
+			if(fgets(buffer, BUF_SZ, fp) != NULL)
 			{
-				char *token = strtok(buffer, " \t\n\f\v\r");
+				char *token = strtok(	buffer, " \t\n\f\v\r");
 				while(token != NULL) {
 					if(hash_fetch(hashy, token) == file_count - 1) {
 						hash_insert(hashy, token, file_count);
@@ -77,45 +79,6 @@ int main(int argc, char *argv[])
 }
 
 /*
-static void merge(const void *arr[], size_t midpoint, size_t len,
-		int (*cmp)(const void *, const void *), const void **tmp)
-{
-	size_t pos = 0;
-	size_t p1 = 0;
-	size_t p2 = midpoint;
-	while(p1 < midpoint && p2 < len) {
-		if(cmp(arr[p2], arr[p1]) < 0) {
-			tmp[pos++] = arr[p2++];
-		} else {
-			tmp[pos++] = arr[p1++];
-		}
-	}
-
-	while(p1 < midpoint) {
-		tmp[pos++] = arr[p1++];
-	}
-	while(p2 < len) {
-		tmp[pos++] = arr[p2++];
-	}
-
-	while(--pos) {
-		arr[pos] = tmp[pos];
-	}
-}
-
-static void mergesort_range(const void *arr[], size_t len,
-		int (*cmp)(const void *, const void *), const void **tmp)
-{
-	if(len < 2) {
-		return;
-	}
-
-	size_t middle = len / 2;
-	mergesort_range(arr, middle, cmp, tmp);
-	mergesort_range(arr + middle, len - middle, cmp, tmp);
-	merge(arr, middle, len, cmp, tmp);
-}
-
 bool mergesort(const void *arr[], size_t len, int (*cmp)(const void *, const void *))
 {
 	if(!arr || !cmp || len < 2) {
