@@ -12,7 +12,7 @@ static void h_llist_destroy(struct h_llist *list);
 static size_t hash_func(const char *key, size_t capacity);
 static void hash_recalculate(hash *h);
 uint64_t wang_hash(uint64_t key);
-void ll_print(struct h_llist *h);
+void ll_print(struct h_llist *h, size_t file_count);
 
 void print_pair(const char *key, size_t value)
 {
@@ -32,9 +32,9 @@ int main(int argc, char *argv[])
 
 	char *buffer = malloc(20 * sizeof(buffer)); //change to malloc later and realloc
 
-	int case1 = 0;
+	//int case1 = 0;
  
-	char *carry_over = malloc(20 * sizeof(carry_over));
+	///char *carry_over = malloc(20 * sizeof(carry_over));
 
 	while(file_count < (size_t)argc) {
 		FILE *fp = fopen(argv[file_count], "r");
@@ -54,10 +54,6 @@ int main(int argc, char *argv[])
 					}
 					token = strtok(NULL, " \t\n\f\v\r");
 				}
-
-				if(case1 == 1) {
-					printf("case 1\n");
-				}
 			}
 		}	
 
@@ -65,26 +61,28 @@ int main(int argc, char *argv[])
 		++file_count;
 	}
 
-	struct h_llist *head = hash_to_ll(hashy, file_count);
+	struct h_llist *head = hash_to_ll(hashy);
 
-	ll_print(head);
+	//merge_sort();
 
-	//free(buffer);
+	ll_print(head, file_count - 1);
 
-	printf("here\n");
+	free(buffer);
 
 	hash_destroy(hashy);
 
 	h_llist_destroy(head);
 }
 
-void ll_print(struct h_llist *h) 
+void ll_print(struct h_llist *h, size_t file_count) 
 {
 	while(h) {
-		printf("%zd %s\n", h->value, h->key);
+		if(h->value == file_count) {
+			printf("%zd %s\n", h->value, h->key);
+		}
+
 		h = h->next;
 	}
-	printf("NULL\n");
 }
 
 //the following functions were pulled from out hash program doen in class
@@ -267,27 +265,25 @@ static void hash_recalculate(hash *h)
 	free(cpy);
 }
 
-struct h_llist *hash_to_ll(hash *h, size_t file_count)
+struct h_llist *hash_to_ll(hash *h)
 {
 	struct h_llist *head = NULL;
 
 	for (size_t n = 0; n < h->capacity; ++n) {
-		if(h->data->value == file_count) {
-			if(!h->data[n]) {
-				continue;
-			}
-
-			struct h_llist *tail = h->data[n];
-			while(tail->next) {
-				tail = tail->next;
-			}
-	
-			tail->next = head;
-			head = h->data[n];
+		if(!h->data[n]) {
+			continue;
 		}
+
+		struct h_llist *tail = h->data[n];
+		while(tail->next) {
+			tail = tail->next;
+		}
+
+		tail->next = head;
+		head = h->data[n];
 	}
 
-	memset(h->data, h->capacity*sizeof(h), '\0');
+	memset(h->data, '\0', h->capacity * sizeof(*h->data));
 
 	return head;
 	/*
