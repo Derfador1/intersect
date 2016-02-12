@@ -30,7 +30,6 @@ int main(int argc, char *argv[])
 	hash *hashy = hash_create();
 
 	char *buffer = malloc(256 * sizeof(buffer)); //change to malloc later and realloc
-	char *buffer1 = malloc(256 * sizeof(buffer1));
 
 	while(file_count < (size_t)argc) {
 		FILE *fp = fopen(argv[file_count], "r");
@@ -57,11 +56,9 @@ int main(int argc, char *argv[])
 		++file_count;
 	}
 
-	hash_traverse(hashy, print_pair);
+	hash_traverse(hashy, print_pair, file_count-1);
 
 	free(buffer);
-
-	free(buffer1);
 
 	hash_destroy(hashy);
 }
@@ -246,12 +243,14 @@ static void hash_recalculate(hash *h)
 	free(cpy);
 }
 
-void hash_traverse(hash *h, void (*func)(const char *, size_t))
+void hash_traverse(hash *h, void (*func)(const char *, size_t), size_t file_count)
 {
 	for(size_t n = 0; n < h->capacity; ++n) {
 		struct h_llist *tmp = h->data[n];
 		while(tmp) {
-			func(tmp->key, tmp->value);
+			if(tmp->value == file_count) {
+				func(tmp->key, tmp->value);
+			}
 			tmp = tmp->next;
 		}
 	}
