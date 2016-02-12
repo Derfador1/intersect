@@ -21,6 +21,6 @@ hash *hash_create(void);
 void hash_destroy(hash *h);
 void hash_insert(hash *h, const char *key, size_t value);
 size_t hash_fetch(hash *h, const char *key);
-void hash_traverse(hash *h, void (*func)(const char *, size_t), size_t file_count);
+struct h_llist *hash_to_ll(hash *h);
 
 #endif
