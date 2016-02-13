@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <math.h>
 
 //taken from class code for hash program
 static const size_t DEFAULT_SIZE = 10;
@@ -12,7 +13,8 @@ static void h_llist_destroy(struct h_llist *list);
 static size_t hash_func(const char *key, size_t capacity);
 static void hash_recalculate(hash *h);
 uint64_t wang_hash(uint64_t key);
-void ll_print(struct h_llist *h, size_t file_count);
+void ll_print(struct h_llist *h);
+struct h_llist *merger(struct h_llist *head, struct h_llist *half);
 struct h_llist *mergesort(struct h_llist *head, size_t sz);
 
 const size_t BUF_SZ = 256;
@@ -67,9 +69,13 @@ int main(int argc, char *argv[])
 
 	struct h_llist *head = hash_to_ll(hashy);
 
+	ll_print(head);
+
+	printf("\n");
+
 	mergesort(head, size);
 
-	ll_print(head, file_count - 1);
+	ll_print(head);
 
 	free(buffer);
 
@@ -78,9 +84,10 @@ int main(int argc, char *argv[])
 	h_llist_destroy(head);
 }
 
-struct h_llist *sorter(struct h_llist *head, struct h_llist *half)
+struct h_llist *merger(struct h_llist *head, struct h_llist *half)
 {
-	struct h_llist *tmp = NULL;
+	struct h_llist *tmp_head = head;
+	struct h_llist *tmp_tail = head;
 
 	if(head == NULL) {
 		return half;
@@ -90,21 +97,43 @@ struct h_llist *sorter(struct h_llist *head, struct h_llist *half)
 	}
 
 	if(head->key <= half->key) {
-		tmp = head;
-		tmp->next = sorter(head->next, half);
+		tmp_head = head;
+		tmp_tail = head;
+		head = head->next;
 	}
 	else
 	{
-		tmp = half;
-		tmp->next = sorter(head, half->next);
+		tmp_head = half;
+		tmp_tail = half;
+		half = half->next;
 	}
 
-	return(tmp);
+	while(head->next != NULL && half->next != NULL) {
+		if(head->key <= half->key) {
+			tmp_tail->next = head;
+			head = head->next;
+			tmp_tail = tmp_tail->next;
+		}
+		else {
+			tmp_tail->next = half;
+			half = half->next;
+			tmp_tail = tmp_tail->next;
+		}
+	}
+	
+	if(head->next != NULL) {
+		tmp_tail->next = head;
+	}
+	
+	if(half->next != NULL) {
+		tmp_tail->next = half;
+	}
+
+	return tmp_head;
 }
 
 struct h_llist *mergesort(struct h_llist *head, size_t sz)
 {
-	struct h_llist *result = head;
 
 	if(!head) {
 		return 0;
@@ -118,28 +147,23 @@ struct h_llist *mergesort(struct h_llist *head, size_t sz)
 	for(size_t n = 0; n < sz/2; ++n) {
 		half = half->next;
 	}
-	
+
 	struct h_llist *tmp = half->next;
 	half->next = NULL;
 	half = tmp;
 	
-	mergesort(head, sz/2);
-	mergesort(half, sz - sz/2);
+	struct h_llist *l1 = mergesort(head, sz/2);
+	struct h_llist *l2 = mergesort(half, sz - sz/2);
 
-	result = sorter(head, half);
+	struct h_llist *result = merger(l1, l2);
 
 	return result;
-
-	//return llist_merge(head, half);
 }
 
-void ll_print(struct h_llist *h, size_t file_count) 
+void ll_print(struct h_llist *h) 
 {
 	while(h) {
-		if(h->value == file_count) {
-			printf("%zd %s\n", h->value, h->key); //change to fprintf(stdout)
-		}
-
+		printf("%zd %s\n", h->value, h->key); //change to fprintf(stdout
 		h = h->next;
 	}
 }
