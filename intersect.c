@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 
 	mergesort(head, size);
 
-	//ll_print(head);
+	ll_print(head);
 
 	free(buffer);
 
@@ -84,54 +84,28 @@ int main(int argc, char *argv[])
 	h_llist_destroy(head);
 }
 //this code for the merger was aquired from the merge_list function on
-//https://sites.google.com/site/spaceofjameschen/home/linked-list/merge-linked-list
+//algorithmsandme.in/2013/10/merge-two-sorted-linked-lists-in-one-list
 struct h_llist *merger(struct h_llist *head, struct h_llist *half)
 {
-	struct h_llist *tmp_head = head;
-	struct h_llist *tmp_tail = head;
+	struct h_llist *result = NULL;
 
 	if(head == NULL) {
 		return half;
 	}
-	
-	if(half == NULL) {
+	else if(half == NULL) {
 		return head;
 	}
 
-	if(head->key <= half->key) {
-		tmp_head = head;
-		tmp_tail = head;
-		head = head->next;
+	if(strcmp(head->key, half->key) == -1) {
+		result = head;
+		result->next = merger(head->next, half);
 	}
-	else
-	{
-		tmp_head = half;
-		tmp_tail = half;
-		half = half->next;
+	else {
+		result = half;
+		result->next = merger(head, half->next);
 	}
 
-	while(head->next != NULL && half->next != NULL) {
-		if(head->key <= half->key) {
-			tmp_tail->next = head;
-			head = head->next;
-			tmp_tail = tmp_tail->next;
-		}
-		else {
-			tmp_tail->next = half;
-			half = half->next;
-			tmp_tail = tmp_tail->next;
-		}
-	}
-	
-	if(head->next != NULL) {
-		tmp_tail->next = head;
-	}
-	
-	if(half->next != NULL) {
-		tmp_tail->next = half;
-	}
-
-	return tmp_head;
+	return result;
 }
 
 struct h_llist *mergesort(struct h_llist *head, size_t sz)
@@ -146,6 +120,8 @@ struct h_llist *mergesort(struct h_llist *head, size_t sz)
 	}
 
 	struct h_llist *half = head;
+
+
 	for(size_t n = 0; n < (sz-1)/2; ++n) {
 		half = half->next;
 	}
@@ -156,13 +132,9 @@ struct h_llist *mergesort(struct h_llist *head, size_t sz)
 	
 	struct h_llist *l1 = mergesort(head, sz - sz/2);
 	struct h_llist *l2 = mergesort(half, sz/2);
-	printf("linked list 1\n");
-	ll_print(l1);
-	printf("linked list 2\n");
-	ll_print(l2);
 
 	struct h_llist *result = merger(l1, l2);
-	ll_print(result);
+
 	return result;
 }
 
