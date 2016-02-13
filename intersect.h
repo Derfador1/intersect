@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 struct h_llist {
 	char *key;
@@ -16,6 +17,26 @@ typedef struct {
 	size_t capacity;
 	struct h_llist **data;
 } hash;
+
+//code given in class
+struct tree {
+	char * data;
+	struct tree *left;
+	struct tree *right;
+};
+
+//code given in class
+typedef struct {
+	struct tree *root;
+} bst;
+
+bst *bst_create(void);
+void bst_destroy(bst *b);
+struct tree *tree_create(char * data);
+void tree_destroy(struct tree *t);
+void tree_inorder(struct tree *t, void (*func)(char *));
+void fill_bst(bst *sorted, hash *h, size_t file_count);
+bool bst_insert(bst *b, char *data);
 
 hash *__hash_create(size_t capacity);
 hash *hash_create(void);
