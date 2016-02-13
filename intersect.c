@@ -182,11 +182,13 @@ static struct h_llist *h_llist_create(const char *key, size_t value)
 		return NULL;
 	}
 
+
 	node->key = strdup(key);
 	if(!node->key) {
 		free(node);
 		return NULL;
 	}
+
 	node->value = value;
 	node->next = NULL;
 
