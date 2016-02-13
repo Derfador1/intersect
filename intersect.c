@@ -67,9 +67,9 @@ int main(int argc, char *argv[])
 
 	struct h_llist *head = hash_to_ll(hashy);
 
-	mergesort(head, size);
+	struct h_llist *result = mergesort(head, size);
 
-	ll_print(head, file_count - 1);
+	ll_print(result, file_count - 1);
 
 	free(buffer);
 
@@ -84,10 +84,12 @@ struct h_llist *merger(struct h_llist *head, struct h_llist *half)
 	struct h_llist *result = NULL;
 
 	if(head == NULL) {
-		return half;
+		result = half;
+		return result;
 	}
 	else if(half == NULL) {
-		return head;
+		//result == head;
+		return result;
 	}
 
 	if(strcmp(head->key, half->key) == -1) {
