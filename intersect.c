@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
 
 //taken from class code for hash program
 static const size_t DEFAULT_SIZE = 10;
@@ -18,6 +19,16 @@ struct h_llist *merger(struct h_llist *head, struct h_llist *half);
 struct h_llist *mergesort(struct h_llist *head, size_t sz);
 
 const size_t BUF_SZ = 256;
+
+char *make_it_lower(const char *string)
+{
+	char *str = strdup(string);
+	for(unsigned int i = 0; i < strlen(str); ++i)
+	{
+		str[i] = tolower(str[i]);
+	}
+	return str;
+}
 
 int main(int argc, char *argv[])
 {
@@ -66,10 +77,12 @@ int main(int argc, char *argv[])
 	size_t size = hashy->item_count;
 
 	struct h_llist *head = hash_to_ll(hashy);
+	
+//	ll_print(head);
 
 	struct h_llist *result = mergesort(head, size);
 
-	ll_print(result, file_count - 1);
+	ll_print(result);
 
 	free(buffer);
 
@@ -79,29 +92,25 @@ int main(int argc, char *argv[])
 }
 //this code for the merger was aquired from the merge_list function on
 //algorithmsandme.in/2013/10/merge-two-sorted-linked-lists-in-one-list
+
 struct h_llist *merger(struct h_llist *head, struct h_llist *half)
 {
-	struct h_llist *result = NULL;
-
 	if(head == NULL) {
-		result = half;
-		return result;
+		return half;
 	}
 	else if(half == NULL) {
-		//result == head;
-		return result;
+		return head;
 	}
 
 	if(strcmp(head->key, half->key) == -1) {
-		result = head;
-		result->next = merger(head->next, half);
+		head->next = merger(head->next, half);
+		return head;
 	}
 	else {
-		result = half;
-		result->next = merger(head, half->next);
+		half->next = merger(half->next, head);
+		return half;
+		
 	}
-
-	return result;
 }
 
 struct h_llist *mergesort(struct h_llist *head, size_t sz)
@@ -133,6 +142,7 @@ struct h_llist *mergesort(struct h_llist *head, size_t sz)
 
 	return result;
 }
+
 
 //the following functions were pulled from out hash program doen in class
 uint64_t wang_hash(uint64_t key)
@@ -200,6 +210,7 @@ static void h_llist_destroy(struct h_llist *list)
 {
 	while(list){
 		struct h_llist *tmp = list->next;
+		free(list->lower_key);
 		free(list->key);
 		free(list);
 		list = tmp;
@@ -232,30 +243,51 @@ void hash_insert(hash *h, const char *key, size_t value)
 		return;
 	}
 
-	hash_recalculate(h);
-
-	size_t idx = hash_func(key, h->capacity);
-
-	struct h_llist *tmp = h->data[idx];
-
-	while(tmp) {
-		if(strcmp(tmp->key, key) == 0) {
-			tmp->value = value;
+	if(value == 1) {
+		
+		char *lowered = make_it_lower(key);
+		
+		hash_recalculate(h);
+	
+		size_t idx = hash_func(lowered, h->capacity);
+	
+		struct h_llist *tmp = h->data[idx];
+	
+		while(tmp) {
+			if(strcmp(tmp->key, lowered) == 0) {
+				tmp->value = value;
+				free(lowered);
+				return;
+			}
+			tmp = tmp->next;
+		}
+	
+		struct h_llist *new = h_llist_create(key, value);
+		if(!new) {
 			return;
 		}
-		tmp = tmp->next;
-	}
-
-	struct h_llist *new = h_llist_create(key, value);
-	if(!new) {
-		return;
-	}
+		new->lower_key = lowered;
+		
+		new->next = h->data[idx];
 	
-	new->next = h->data[idx];
-
-	h->data[idx] = new;
-
-	h->item_count += 1;
+		h->data[idx] = new;
+	
+		h->item_count += 1;
+	}
+	else {
+		char *key_check = make_it_lower(key);
+		size_t idx = hash_func(key_check, h->capacity);
+		struct h_llist*tmp = h->data[idx];
+		while(tmp) {
+			if(strcmp(tmp->lower_key, key_check) == 0) {
+				tmp->value = value;
+				free(key_check);
+				return;
+			}
+			tmp = tmp->next;	
+		}
+		free(key_check);
+	}
 }
 
 
