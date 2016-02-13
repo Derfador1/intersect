@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 
 	mergesort(head, size);
 
-	ll_print(head);
+	//ll_print(head);
 
 	free(buffer);
 
@@ -83,7 +83,8 @@ int main(int argc, char *argv[])
 
 	h_llist_destroy(head);
 }
-
+//this code for the merger was aquired from the merge_list function on
+//https://sites.google.com/site/spaceofjameschen/home/linked-list/merge-linked-list
 struct h_llist *merger(struct h_llist *head, struct h_llist *half)
 {
 	struct h_llist *tmp_head = head;
@@ -92,7 +93,8 @@ struct h_llist *merger(struct h_llist *head, struct h_llist *half)
 	if(head == NULL) {
 		return half;
 	}
-	else if(half == NULL) {
+	
+	if(half == NULL) {
 		return head;
 	}
 
@@ -144,7 +146,7 @@ struct h_llist *mergesort(struct h_llist *head, size_t sz)
 	}
 
 	struct h_llist *half = head;
-	for(size_t n = 0; n < sz/2; ++n) {
+	for(size_t n = 0; n < (sz-1)/2; ++n) {
 		half = half->next;
 	}
 
@@ -152,11 +154,15 @@ struct h_llist *mergesort(struct h_llist *head, size_t sz)
 	half->next = NULL;
 	half = tmp;
 	
-	struct h_llist *l1 = mergesort(head, sz/2);
-	struct h_llist *l2 = mergesort(half, sz - sz/2);
+	struct h_llist *l1 = mergesort(head, sz - sz/2);
+	struct h_llist *l2 = mergesort(half, sz/2);
+	printf("linked list 1\n");
+	ll_print(l1);
+	printf("linked list 2\n");
+	ll_print(l2);
 
 	struct h_llist *result = merger(l1, l2);
-
+	ll_print(result);
 	return result;
 }
 
