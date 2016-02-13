@@ -4,7 +4,7 @@ CFLAGS+=-Wall -Wextra -Wpedantic
 CFLAGS+=-Wwrite-strings -Wstack-usage=1024 -Wfloat-equal -Waggregate-return -Winline
 
 
-intersect: intersect.o
+intersect: intersect.o intersect_funcs.o
 
 profile:CFLAGS+=-pg
 profile:LDFLAGS+=-pg
