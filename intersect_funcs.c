@@ -46,7 +46,7 @@ hash *__hash_create(size_t capacity)
 		return NULL;
 	}
 
-	h->data = calloc(capacity, sizeof(*h->data));
+	h->data = calloc(capacity, sizeof(*h->data)); 
 
 	if(!h->data) {
 		free(h);
@@ -62,7 +62,7 @@ hash *__hash_create(size_t capacity)
 
 hash *hash_create(void)
 {
-	return __hash_create(DEFAULT_SIZE);
+	return __hash_create(DEFAULT_SIZE); //liams jiggery pokery
 }
 
 
@@ -75,7 +75,7 @@ static struct h_llist *h_llist_create(const char *key, size_t value)
 	}
 
 
-	node->key = strdup(key);
+	node->key = strdup(key); //copies the key to the nodes key
 	if(!node->key) {
 		free(node);
 		return NULL;
@@ -113,9 +113,9 @@ void hash_destroy(hash *h)
 static size_t hash_func(const char *key, size_t capacity)
 {
 	uint64_t buf = 0;
-	strncpy((char *)(&buf), key, sizeof(buf));
+	strncpy((char *)(&buf), key, sizeof(buf)); //more super jeggery pokery
 
-	return wang_hash(buf) % capacity;
+	return wang_hash(buf) % capacity; //pass back a value that fits in your hash table
 }	
 
 void hash_insert(hash *h, const char *key, size_t value)
@@ -124,13 +124,13 @@ void hash_insert(hash *h, const char *key, size_t value)
 		return;
 	}
 
-	if(value == 1) {
+	if(value == 1) { //if you have 1 file
 		
-		char *lowered = make_it_lower(key);
+		char *lowered = make_it_lower(key); //returns the lowered value that you can make
 		
 		hash_recalculate(h);
 	
-		size_t idx = hash_func(lowered, h->capacity);
+		size_t idx = hash_func(lowered, h->capacity); //hash with the lowered key
 	
 		struct h_llist *tmp = h->data[idx];
 	
@@ -157,12 +157,12 @@ void hash_insert(hash *h, const char *key, size_t value)
 
 		free(lowered);
 	}
-	else {
-		char *key_check = make_it_lower(key);
+	else { //or if you have more then one file
+		char *key_check = make_it_lower(key); //a check to see make a check key
 		size_t idx = hash_func(key_check, h->capacity);
 		struct h_llist*tmp = h->data[idx];
 		while(tmp) {
-			if(strcmp(tmp->key, key_check) == 0) {
+			if(strcmp(tmp->lower_key, key_check) == 0) { //checks key against the lowered value
 				tmp->value = value;
 				free(key_check);
 				return;
@@ -174,7 +174,7 @@ void hash_insert(hash *h, const char *key, size_t value)
 }
 
 
-size_t hash_fetch(hash *h, const char *key)
+size_t hash_fetch(hash *h, const char *key) 
 {
 	if(!h || !key) {
 		return 0;
@@ -201,12 +201,12 @@ static void hash_recalculate(hash *h)
 		return;
 	}
 
-	if(h->item_count < 0.70 * h->capacity) {
+	if(h->item_count < 0.70 * h->capacity) { //makes sure we have at least 30 % of the hash table free
 		
 		return;
 	}
 
-	hash *cpy = __hash_create(h->capacity * 2);
+	hash *cpy = __hash_create(h->capacity * 2); //doubles the capacity each time we get here
 	if(!cpy) {
 		return;
 	}
@@ -223,6 +223,7 @@ static void hash_recalculate(hash *h)
 	}
 	free(h->data);
 
+	//copies the values from the copy
 	h->capacity = cpy->capacity;
 	h->item_count = cpy->item_count;
 	h->data = cpy->data;
