@@ -210,7 +210,7 @@ static void h_llist_destroy(struct h_llist *list)
 {
 	while(list){
 		struct h_llist *tmp = list->next;
-		free(list->lower_key);
+		//free(list->lower_key);
 		free(list->key);
 		free(list);
 		list = tmp;
@@ -254,7 +254,7 @@ void hash_insert(hash *h, const char *key, size_t value)
 		struct h_llist *tmp = h->data[idx];
 	
 		while(tmp) {
-			if(strcmp(tmp->key, lowered) == 0) {
+			if(strcmp(tmp->key, key) == 0) {
 				tmp->value = value;
 				free(lowered);
 				return;
@@ -273,13 +273,16 @@ void hash_insert(hash *h, const char *key, size_t value)
 		h->data[idx] = new;
 	
 		h->item_count += 1;
+
+		//free(new->lower_key);
+		free(lowered);
 	}
 	else {
 		char *key_check = make_it_lower(key);
 		size_t idx = hash_func(key_check, h->capacity);
 		struct h_llist*tmp = h->data[idx];
 		while(tmp) {
-			if(strcmp(tmp->lower_key, key_check) == 0) {
+			if(strcmp(tmp->key, key_check) == 0) {
 				tmp->value = value;
 				free(key_check);
 				return;
