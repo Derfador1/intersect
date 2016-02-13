@@ -1,5 +1,6 @@
 #define _BSD_SOURCE
 #include "intersect.h"
+#include "intersect_funcs.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -13,7 +14,6 @@ static void h_llist_destroy(struct h_llist *list);
 static size_t hash_func(const char *key, size_t capacity);
 static void hash_recalculate(hash *h);
 uint64_t wang_hash(uint64_t key);
-void ll_print(struct h_llist *h);
 struct h_llist *merger(struct h_llist *head, struct h_llist *half);
 struct h_llist *mergesort(struct h_llist *head, size_t sz);
 
@@ -65,17 +65,11 @@ int main(int argc, char *argv[])
 
 	size_t size = hashy->item_count;
 
-	printf("Size: %zd\n", size);
-
 	struct h_llist *head = hash_to_ll(hashy);
-
-	ll_print(head);
-
-	printf("\n");
 
 	mergesort(head, size);
 
-	ll_print(head);
+	ll_print(head, file_count - 1);
 
 	free(buffer);
 
@@ -136,14 +130,6 @@ struct h_llist *mergesort(struct h_llist *head, size_t sz)
 	struct h_llist *result = merger(l1, l2);
 
 	return result;
-}
-
-void ll_print(struct h_llist *h) 
-{
-	while(h) {
-		printf("%zd %s\n", h->value, h->key); //change to fprintf(stdout
-		h = h->next;
-	}
 }
 
 //the following functions were pulled from out hash program doen in class
