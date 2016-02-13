@@ -15,8 +15,11 @@ static void h_llist_destroy(struct h_llist *list);
 static size_t hash_func(const char *key, size_t capacity);
 static void hash_recalculate(hash *h);
 uint64_t wang_hash(uint64_t key);
-struct h_llist *merger(struct h_llist *head, struct h_llist *half);
-struct h_llist *mergesort(struct h_llist *head, size_t sz);
+
+void print_func(char *word)
+{
+	printf("%s\n", word);
+}
 
 const size_t BUF_SZ = 256;
 
@@ -73,74 +76,20 @@ int main(int argc, char *argv[])
 		fclose(fp);
 		++file_count;
 	}
-
-	size_t size = hashy->item_count;
-
-	struct h_llist *head = hash_to_ll(hashy);
 	
-//	ll_print(head);
+	//gave in and used trees instead of a merge sort
 
-	struct h_llist *result = mergesort(head, size);
+	bst *new_bst = bst_create();
+	
+	fill_bst(new_bst, hashy, file_count);
 
-	ll_print(result);
+	tree_inorder(new_bst->root, print_func);
 
 	free(buffer);
 
 	hash_destroy(hashy);
 
-	h_llist_destroy(head);
-}
-//this code for the merger was aquired from the merge_list function on
-//algorithmsandme.in/2013/10/merge-two-sorted-linked-lists-in-one-list
-
-struct h_llist *merger(struct h_llist *head, struct h_llist *half)
-{
-	if(head == NULL) {
-		return half;
-	}
-	else if(half == NULL) {
-		return head;
-	}
-
-	if(strcmp(head->key, half->key) == -1) {
-		head->next = merger(head->next, half);
-		return head;
-	}
-	else {
-		half->next = merger(half->next, head);
-		return half;
-		
-	}
-}
-
-struct h_llist *mergesort(struct h_llist *head, size_t sz)
-{
-
-	if(!head) {
-		return 0;
-	}
-
-	if(sz < 2) {
-		return head;
-	}
-
-	struct h_llist *half = head;
-
-
-	for(size_t n = 0; n < (sz-1)/2; ++n) {
-		half = half->next;
-	}
-
-	struct h_llist *tmp = half->next;
-	half->next = NULL;
-	half = tmp;
-	
-	struct h_llist *l1 = mergesort(head, sz - sz/2);
-	struct h_llist *l2 = mergesort(half, sz/2);
-
-	struct h_llist *result = merger(l1, l2);
-
-	return result;
+	bst_destroy(new_bst);
 }
 
 
@@ -383,4 +332,98 @@ struct h_llist *hash_to_ll(hash *h)
 		}
 	}
 	*/
+}
+
+//Code derived from dsprimm
+void fill_bst(bst *sorted, hash *h, size_t file_count){
+	if(!h){
+        	return;
+    	}
+
+    	for(size_t n = 0; n <= h->capacity; ++n){
+        	struct h_llist *tmp = h->data[n];
+        	while(tmp){
+            	if(tmp->value == file_count - 1){
+                	bst_insert(sorted, tmp->key);
+            	}
+            	tmp = tmp->next;
+        	}
+	}
+}
+
+//Taken from class tree exercise
+bst *bst_create(void){
+	bst *b = malloc(sizeof(*b));
+	if(b){
+		b->root = NULL;
+	}
+
+	return b;
+}
+
+//Taken from class tree exercise
+void bst_destroy(bst *b){
+	if(!b){
+		return;
+	}
+	tree_destroy(b->root);
+	free(b);
+}
+
+//Taken from class tree exercise
+static bool tree_insert(struct tree **t, char *data){
+	if(!*t){
+		*t = tree_create(data);
+		return *t;
+	}
+	struct tree *node = *t;
+
+	if(strcmp(data, node->data) > 0){
+		return tree_insert(&node->right, data);
+	} 
+	else{
+		return tree_insert(&node->left, data);
+	}
+}
+
+//Taken from class tree exercise
+bool bst_insert(bst *b, char *data){
+	if(!b){
+		return false;
+	}
+	return tree_insert(&b->root, data);
+}
+
+//Taken from class tree exercise
+struct tree *tree_create(char *data){
+	struct tree *t = malloc(sizeof(*t));
+	if(t){
+		t->data = data;
+		t->left = NULL;
+		t->right = NULL;
+	}
+
+	return t;
+}
+
+//Taken from class tree exercise
+void tree_destroy(struct tree *t){
+	if(!t){
+		return;
+	}
+
+	tree_destroy(t->left);
+	tree_destroy(t->right);
+	free(t);
+}
+
+//Taken from class tree exercise
+void tree_inorder(struct tree *t, void (*func)(char *)){
+	if(!t){
+		return;
+	}
+
+	tree_inorder(t->left, func);
+	func(t->data);
+	tree_inorder(t->right, func);
 }
