@@ -6,6 +6,7 @@
 
 struct h_llist {
 	char *key;
+	char *lower_key;
 	size_t value;
 	struct h_llist *next;
 };
